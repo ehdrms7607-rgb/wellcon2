@@ -605,8 +605,20 @@ footer a,.site-footer a{
 </style>
 
 <link rel="stylesheet" href="apple-site.css">
-<link rel="stylesheet" href="premium-motion.css">
-<script defer src="premium-motion.js"></script>
+<link rel="stylesheet" href="wellcon-boundary.css">
+<link rel="stylesheet" href="header-final-fix.css?v=20260921-4">
+<style id="wellcon-main-hero-line-spacing-fix">
+.home-landing .concept-b .b-hero h1{
+  line-height:1.12!important;
+}
+@media(max-width:640px){
+  .home-landing .concept-b .b-hero h1{
+    line-height:1.18!important;
+    letter-spacing:-.045em!important;
+  }
+}
+</style>
+<script defer src="wellcon-boundary.js"></script>
 </head>
 <body class="home-landing">
 <div class="intro-video" id="introVideo" aria-label="웰콘 인트로 영상">
@@ -829,28 +841,48 @@ document.addEventListener('DOMContentLoaded', function(){
     const progress=document.getElementById('introProgressBar');
     if(!intro || !video || !skip) return;
 
-    const closeIntro=()=>{
+    const introSeenKey='wellconIntroSeenSessionV1';
+    const hasSeenIntro=()=>{
+      try{return sessionStorage.getItem(introSeenKey)==='1';}
+      catch(_){return false;}
+    };
+    const markIntroSeen=()=>{
+      try{sessionStorage.setItem(introSeenKey,'1');}catch(_){}
+    };
+    const closeIntro=(remember=true)=>{
       if(intro.classList.contains('is-hidden')) return;
       intro.classList.add('is-hidden');
       document.body.classList.remove('intro-playing');
-      sessionStorage.setItem('wellconIntroSeen','1');
+      if(remember) markIntroSeen();
       window.setTimeout(()=>{ video.pause(); intro.remove(); },700);
     };
 
-    if(sessionStorage.getItem('wellconIntroSeen')==='1'){
+    if(hasSeenIntro()){
       intro.remove();
       return;
     }
 
     document.body.classList.add('intro-playing');
-    skip.addEventListener('click',closeIntro);
-    video.addEventListener('ended',closeIntro);
-    video.addEventListener('error',closeIntro);
+    video.muted=true;
+    video.defaultMuted=true;
+    video.setAttribute('muted','');
+    video.setAttribute('playsinline','');
+    video.setAttribute('webkit-playsinline','');
+
+    const tryPlay=()=>{
+      const playPromise=video.play();
+      if(playPromise) playPromise.catch(()=>{ skip.classList.add('is-prominent'); });
+    };
+
+    skip.addEventListener('click',()=>closeIntro(true));
+    video.addEventListener('ended',()=>closeIntro(true));
+    video.addEventListener('error',()=>closeIntro(false));
+    video.addEventListener('canplay',tryPlay,{once:true});
+    document.addEventListener('touchstart',tryPlay,{once:true,passive:true});
     video.addEventListener('timeupdate',()=>{
       if(progress && video.duration) progress.style.width=((video.currentTime/video.duration)*100)+'%';
     });
-    const playPromise=video.play();
-    if(playPromise) playPromise.catch(()=>{ skip.classList.add('is-prominent'); });
+    tryPlay();
   })();
   </script>
 </body></html>
