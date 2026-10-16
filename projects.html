@@ -307,7 +307,8 @@ main.product-page-enter .wb-reveal{
 :root{--case-line:#e7e7e2;--case-bg:#f7f7f4} body{background:#fff} .case-hero{padding:170px 6vw 70px;background:#f4f4f0}.case-hero small{letter-spacing:.18em;font-weight:700}.case-hero h1{font-size:clamp(42px,6vw,82px);margin:12px 0 14px}.case-hero p{color:#666;max-width:650px}.case-wrap{padding:55px 6vw 100px}.case-tools{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:34px}.year-btn{border:1px solid #d6d6d0;background:white;padding:11px 20px;border-radius:99px;cursor:pointer;font-weight:700;position:relative;z-index:5;pointer-events:auto}.year-btn.active{background:#111;color:white;border-color:#111}.case-select{margin-left:auto;padding:11px 38px 11px 15px;border:1px solid #d6d6d0;background:#fff}.case-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:30px 22px}.case-card{border-top:1px solid var(--case-line)}.case-open{width:100%;border:0;background:none;padding:0;text-align:left;cursor:pointer}.case-img{height:280px;background:#f3f3f0;overflow:hidden;position:relative}.case-img img{width:100%;height:100%;object-fit:contain;transition:.45s}.case-img span{position:absolute;right:18px;bottom:18px;background:#111;color:#fff;padding:9px 12px;opacity:0;transition:.3s}.case-open:hover img{transform:scale(1.035)}.case-open:hover .case-img span{opacity:1}.case-info{padding:18px 2px 26px}.case-meta{display:flex;gap:10px;align-items:center;font-size:13px}.case-meta em{font-style:normal;color:#777}.case-info h3{font-size:21px;margin:10px 0 8px}.case-info p{margin:0;color:#777}.case-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9999;padding:5vh 4vw}.case-modal.open{display:flex;align-items:center;justify-content:center}.case-dialog{background:#fff;width:min(1000px,94vw);max-height:90vh;overflow:auto;position:relative}.case-dialog img{width:100%;height:520px;object-fit:contain;background:#f5f5f2}.case-detail{padding:24px 28px 30px}.case-close{position:absolute;right:14px;top:14px;width:42px;height:42px;border:0;background:#111;color:#fff;font-size:25px;cursor:pointer}@media(max-width:900px){.case-grid{grid-template-columns:repeat(2,1fr)}.case-select{margin-left:0}}@media(max-width:600px){.case-hero{padding:125px 22px 45px}.case-wrap{padding:35px 22px 70px}.case-grid{grid-template-columns:1fr}.case-img{height:240px}.case-dialog img{height:300px}}
 </style>
 <link rel="stylesheet" href="apple-site.css">
-<link rel="stylesheet" href="premium-motion.css"><script defer src="premium-motion.js"></script></head><body><header class="site-header">
+<link rel="stylesheet" href="wellcon-boundary.css">
+<link rel="stylesheet" href="header-final-fix.css?v=20260922-1"><script defer src="wellcon-boundary.js"></script></head><body><header class="site-header">
   <a class="brand brand-logo" href="index.html" aria-label="웰콘 홈"><img src="assets/wellcon-logo.png" alt="WELLCON 웰콘 로고"></a>
   <nav class="desktop-nav" aria-label="주요 메뉴"><a href="company.html">회사소개</a><div class="product-menu-wrap">
 <a href="bridge-railing.html">제품소개</a>
@@ -462,4 +463,52 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+<script id="case-product-navigation-fix">
+document.addEventListener('click', function (event) {
+  var link = event.target.closest('.case-product-jump');
+  if (!link) return;
+  var cardButton = link.closest('.case-open');
+  var product = (link.textContent || (cardButton && cardButton.dataset.prod) || '').trim();
+  var category = ((cardButton && cardButton.dataset.cat) || (document.getElementById('modalCat') && document.getElementById('modalCat').textContent) || '').trim();
+  var pageMap = {'알루미늄제교량난간':'bridge-railing.html','디자인형울타리':'design-fence.html','금속제기타울타리':'metal-other-fence.html','알루미늄제도로중앙분리대':'aluminum-median-barrier.html','차선분리대':'lane-divider.html','창살형울타리':'bar-fence.html'};
+  var href = pageMap[category] && product ? pageMap[category] + '#product=' + encodeURIComponent(product) : link.getAttribute('href');
+  if (!href) return;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  window.location.assign(href);
+}, true);
+</script>
+<script id="case-all-product-links">
+document.addEventListener('DOMContentLoaded', function () {
+  var pages = {'알루미늄제교량난간':'bridge-railing.html','디자인형울타리':'design-fence.html','금속제기타울타리':'metal-other-fence.html','알루미늄제도로중앙분리대':'aluminum-median-barrier.html','차선분리대':'lane-divider.html','창살형울타리':'bar-fence.html'};
+  function productLinks(container, names, category) {
+    names.split(/\s*\+\s*/).forEach(function(name, index) {
+      if(index) container.appendChild(document.createTextNode(' + '));
+      var page = pages[category];
+      if(!page) { container.appendChild(document.createTextNode(name)); return; }
+      var link = document.createElement('a');
+      link.className='case-product-jump'; link.textContent=name;
+      link.href=page+'#product='+encodeURIComponent(name);
+      container.appendChild(link);
+    });
+  }
+  document.querySelectorAll('.case-open').forEach(function(button) {
+    var paragraph=button.querySelector('.case-info p');
+    if(!paragraph || !button.dataset.prod) return;
+    var count=paragraph.textContent.match(/시공사진\s*\d+장/);
+    paragraph.textContent='적용제품 ';
+    productLinks(paragraph, button.dataset.prod, button.dataset.cat);
+    if(count) paragraph.appendChild(document.createTextNode(' · '+count[0]));
+  });
+  document.addEventListener('click', function(event) {
+    var button=event.target.closest('.case-open');
+    if(!button || event.target.closest('.case-product-jump')) return;
+    var modalProduct=document.getElementById('modalProd');
+    if(!modalProduct) return;
+    modalProduct.classList.remove('case-product-jump');
+    modalProduct.textContent='';
+    productLinks(modalProduct, button.dataset.prod || '', button.dataset.cat);
+  });
+});
+</script>
 </body></html>
