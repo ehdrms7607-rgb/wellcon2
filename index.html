@@ -629,7 +629,7 @@ footer a,.site-footer a{
   <div class="intro-progress" aria-hidden="true"><span id="introProgressBar"></span></div>
 </div>
 <header class="site-header">
-  <a class="brand brand-logo" href="index.html?skipIntro=1" aria-label="웰콘 홈"><img src="assets/wellcon-logo.png" alt="WELLCON 웰콘 로고"></a>
+  <a class="brand brand-logo" href="index.html" aria-label="웰콘 홈"><img src="assets/wellcon-logo.png" alt="WELLCON 웰콘 로고"></a>
   <nav class="desktop-nav" aria-label="주요 메뉴"><a href="company.html">회사소개</a><div class="product-menu-wrap">
 <a href="bridge-railing.html">제품소개</a>
 <div class="product-submenu" aria-label="제품소개 하위 메뉴">
@@ -639,6 +639,7 @@ footer a,.site-footer a{
 <a href="lane-divider.html">차선분리대</a>
 <a href="bar-fence.html">창살형울타리</a>
 <a href="metal-other-fence.html">금속제기타울타리</a>
+<a href="expansion-joint.html">신축이음장치</a>
 </div>
 </div><div class="project-menu-wrap">
 <a href="projects.html">시공사례</a>
@@ -663,6 +664,7 @@ footer a,.site-footer a{
           <a href="lane-divider.html">차선분리대</a>
           <a href="bar-fence.html">창살형울타리</a>
           <a href="metal-other-fence.html">금속제기타울타리</a>
+<a href="expansion-joint.html">신축이음장치</a>
         </div>
       </div>
       <div class="mobile-submenu-wrap">
@@ -722,6 +724,7 @@ footer a,.site-footer a{
       <a href="lane-divider.html" class="b-cap-row reveal"><span>04</span><b>차선분리대</b><em>LANE DIVIDER</em><i>↗</i></a>
       <a href="bar-fence.html" class="b-cap-row reveal"><span>05</span><b>창살형울타리</b><em>BAR FENCE</em><i>↗</i></a>
       <a href="metal-other-fence.html" class="b-cap-row reveal"><span>06</span><b>금속제기타울타리</b><em>METAL FENCE</em><i>↗</i></a>
+      <a href="expansion-joint.html" class="b-cap-row reveal"><span>07</span><b>신축이음장치</b><em>EXPANSION JOINT</em><i aria-hidden="true">↗</i></a>
     </div>
   </section>
 
@@ -841,8 +844,7 @@ document.addEventListener('DOMContentLoaded', function(){
     const progress=document.getElementById('introProgressBar');
     if(!intro || !video || !skip) return;
 
-    const introSeenKey='wellconIntroSeenSessionV2';
-    const skipRequested=new URLSearchParams(window.location.search).get('skipIntro')==='1';
+    const introSeenKey='wellconIntroSeenSessionV1';
     const hasSeenIntro=()=>{
       try{return sessionStorage.getItem(introSeenKey)==='1';}
       catch(_){return false;}
@@ -858,11 +860,8 @@ document.addEventListener('DOMContentLoaded', function(){
       window.setTimeout(()=>{ video.pause(); intro.remove(); },700);
     };
 
-    if(skipRequested || hasSeenIntro()){
+    if(hasSeenIntro()){
       intro.remove();
-      if(skipRequested && window.history && window.history.replaceState){
-        window.history.replaceState(null,'',window.location.pathname+window.location.hash);
-      }
       return;
     }
 
@@ -881,12 +880,7 @@ document.addEventListener('DOMContentLoaded', function(){
     skip.addEventListener('click',()=>closeIntro(true));
     video.addEventListener('ended',()=>closeIntro(true));
     video.addEventListener('error',()=>closeIntro(false));
-    video.addEventListener('loadeddata',tryPlay,{once:true});
     video.addEventListener('canplay',tryPlay,{once:true});
-    window.addEventListener('pageshow',tryPlay,{once:true});
-    document.addEventListener('visibilitychange',()=>{
-      if(document.visibilityState==='visible' && video.paused) tryPlay();
-    });
     document.addEventListener('touchstart',tryPlay,{once:true,passive:true});
     video.addEventListener('timeupdate',()=>{
       if(progress && video.duration) progress.style.width=((video.currentTime/video.duration)*100)+'%';
